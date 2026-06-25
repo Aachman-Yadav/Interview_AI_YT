@@ -61,18 +61,26 @@ export const useInterview = () => {
 
     const getResumePdf = async (interviewReportId) => {
         setLoading(true)
-        let response = null
         try {
-            response = await generateResumePdf({ interviewReportId })
-            const url = window.URL.createObjectURL(new Blob([ response ], { type: "application/pdf" }))
-            const link = document.createElement("a")
-            link.href = url
-            link.setAttribute("download", `resume_${interviewReportId}.pdf`)
-            document.body.appendChild(link)
-            link.click()
+            const data = await generateResumePdf({ interviewReportId })
+            if (data && data.html) {
+                const printWindow = window.open("", "_blank")
+                if (printWindow) {
+                    printWindow.document.write(data.html)
+                    printWindow.document.close()
+                    printWindow.focus()
+                    setTimeout(() => {
+                        printWindow.print()
+                        printWindow.close()
+                    }, 500)
+                } else {
+                    alert("Please allow popups to download/print your resume.")
+                }
+            }
         }
         catch (error) {
-            console.log(error)
+            console.error("Error opening resume print window:", error)
+            alert("Failed to generate resume preview.")
         } finally {
             setLoading(false)
         }
