@@ -6,8 +6,9 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173"
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: frontendUrl.includes(",") ? frontendUrl.split(",") : frontendUrl,
     credentials: true
 }))
 
